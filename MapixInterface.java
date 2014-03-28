@@ -12,26 +12,36 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JSlider;
+
 import java.awt.BorderLayout;
 import java.awt.Panel;
 import java.awt.TextField;
 import java.awt.Label;
 import java.awt.Button;
+
 import javax.swing.JTextField;
 import javax.swing.JButton;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.GridLayout;
+import java.awt.Dimension;
+import java.awt.event.*;
+
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.forms.factories.FormFactory;
+
 import javax.swing.JPanel;
+
 import net.miginfocom.swing.MigLayout;
 
 
 
-public class MapixInterface {
+public class MapixInterface implements ComponentListener{
 
 	private JFrame frmMapix;
 	private JTextField txtPathtophotos;
@@ -71,6 +81,7 @@ public class MapixInterface {
 		frmMapix.setBounds(100, 100, 525, 325);
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][:19px:100px,grow][][8px,grow][224px,grow][25px,grow]"));
+		frmMapix.addComponentListener(this);
 		
 		txtPathtophotos = new JTextField();
 		txtPathtophotos.setText("Path/to/photos");
@@ -81,6 +92,11 @@ public class MapixInterface {
 		frmMapix.getContentPane().add(panel, "cell 0 0 1 5,grow");
 		
 		btnInportPhotos = new JButton("Import");
+		btnInportPhotos.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+		});
 		frmMapix.getContentPane().add(btnInportPhotos, "cell 1 2,growx,aligny top");
 		
 		slider = new JSlider();
@@ -122,6 +138,39 @@ public class MapixInterface {
 	 */
 	public void plotPhoto()
 	{
+		
+	}
+	
+	@Override
+	public void componentResized(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		Dimension newDim = frmMapix.getSize();
+		if(newDim.height < 200)
+			newDim.height = 200;
+		
+		if(newDim.width < 250)
+			newDim.width = 250;
+		
+		frmMapix.setSize(newDim);
+		
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) {
+		// TODO Nothing
+		
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+		// TODO Nothing
+		
+	}
+
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+		// TODO Nothing
 		
 	}
 }
