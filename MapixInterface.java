@@ -27,6 +27,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.forms.factories.FormFactory;
 import javax.swing.JPanel;
+import net.miginfocom.swing.MigLayout;
 
 
 
@@ -69,36 +70,24 @@ public class MapixInterface {
 		frmMapix.setTitle("Mapix");
 		frmMapix.setBounds(100, 100, 525, 325);
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmMapix.getContentPane().setLayout(new FormLayout(new ColumnSpec[] {
-				ColumnSpec.decode("398px:grow"),
-				FormFactory.BUTTON_COLSPEC,},
-			new RowSpec[] {
-				RowSpec.decode("max(8dlu;default):grow"),
-				RowSpec.decode("4dlu:grow"),
-				RowSpec.decode("max(10dlu;default):grow"),
-				RowSpec.decode("4dlu:grow"),
-				RowSpec.decode("190px:grow"),
-				RowSpec.decode("4dlu:grow"),
-				RowSpec.decode("default:grow"),
-				RowSpec.decode("7dlu:grow"),
-				}));
+		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][:19px:100px,grow][][8px,grow][224px,grow][25px,grow]"));
 		
 		txtPathtophotos = new JTextField();
 		txtPathtophotos.setText("Path/to/photos");
-		frmMapix.getContentPane().add(txtPathtophotos, "2, 1, fill, default");
+		frmMapix.getContentPane().add(txtPathtophotos, "cell 1 1,growx,aligny top");
 		txtPathtophotos.setColumns(10);
 		
 		JPanel panel = new JPanel();
-		frmMapix.getContentPane().add(panel, "1, 1, 1, 5, fill, fill");
+		frmMapix.getContentPane().add(panel, "cell 0 0 1 5,grow");
 		
 		btnInportPhotos = new JButton("Import");
-		frmMapix.getContentPane().add(btnInportPhotos, "2, 3");
+		frmMapix.getContentPane().add(btnInportPhotos, "cell 1 2,growx,aligny top");
 		
 		slider = new JSlider();
-		frmMapix.getContentPane().add(slider, "1, 7");
+		frmMapix.getContentPane().add(slider, "cell 0 5,growx,aligny center");
 		
 		btnMap = new JButton("Map!");
-		frmMapix.getContentPane().add(btnMap, "2, 7");
+		frmMapix.getContentPane().add(btnMap, "cell 1 5,growx,aligny top");
 	}
 	
 	/**
