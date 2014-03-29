@@ -13,27 +13,15 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JSlider;
 
-import java.awt.BorderLayout;
-import java.awt.Panel;
-import java.awt.TextField;
-import java.awt.Label;
-import java.awt.Button;
-
 import javax.swing.JTextField;
 import javax.swing.JButton;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.GridLayout;
+
 import java.awt.Dimension;
 import java.awt.event.*;
-
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.factories.FormFactory;
 
 import javax.swing.JPanel;
 
@@ -97,6 +85,7 @@ public class MapixInterface extends ComponentAdapter{
 		btnInportPhotos.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				txtPathtophotos.setText("It worked!");
 			}
 		});
 		frmMapix.getContentPane().add(btnInportPhotos, "cell 1 2,growx,aligny top");
@@ -147,9 +136,12 @@ public class MapixInterface extends ComponentAdapter{
 		
 	}
 	
+	/**
+	 * This method overrides the componentResized method in the componentAdpter class.
+	 * This is being done in order to ensure the window is not resized below a minimum threshold size
+	 */
 	@Override
 	public void componentResized(ComponentEvent e) {
-		// TODO Auto-generated method stub
 		Dimension newDim = frmMapix.getSize();
 		if(newDim.height < 220)
 			newDim.height = 220;
