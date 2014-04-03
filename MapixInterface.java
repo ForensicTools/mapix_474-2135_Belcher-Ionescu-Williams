@@ -8,36 +8,24 @@
 
 package mapix;
 
-import java.awt.EventQueue;
+import net.miginfocom.swing.MigLayout;
 
-import javax.swing.JFrame;
-import javax.swing.JSlider;
-
-import javax.swing.JTextField;
-import javax.swing.JButton;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ComponentEvent;
-
-import java.awt.Dimension;
+import java.io.*;
+import java.awt.*;
 import java.awt.event.*;
 
-import javax.swing.JPanel;
-
-import net.miginfocom.swing.MigLayout;
-import javax.swing.JList;
+import javax.swing.*;
+import javax.swing.filechooser.*;
 
 
 
-public class MapixInterface extends ComponentAdapter{
+public class MapixInterface extends ComponentAdapter implements ActionListener{
 
 	private JFrame frmMapix;
-	private JTextField txtPathtophotos;
-	private JButton btnInportPhotos;
-	private JButton btnMap;
+	private JButton importButton;
 	private JSlider slider;
 	private JList list;
+	private JFileChooser fc;
 
 	/**
 	 * Launch the application.
@@ -72,23 +60,15 @@ public class MapixInterface extends ComponentAdapter{
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][][][224px,grow][]"));
 		frmMapix.addComponentListener(this);
+		fc = new JFileChooser();
+		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		
-		txtPathtophotos = new JTextField();
-		txtPathtophotos.setText("Path/to/photos");
-		frmMapix.getContentPane().add(txtPathtophotos, "cell 1 1,growx,aligny bottom");
-		txtPathtophotos.setColumns(10);
+		importButton = new JButton("Import");
+		importButton.addActionListener(this);
+		frmMapix.getContentPane().add(importButton, "cell 1 1,growx,aligny bottom");
 		
 		JPanel panel = new JPanel();
 		frmMapix.getContentPane().add(panel, "cell 0 0,grow");
-		
-		btnInportPhotos = new JButton("Import");
-		btnInportPhotos.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				txtPathtophotos.setText("It worked!");
-			}
-		});
-		frmMapix.getContentPane().add(btnInportPhotos, "cell 1 2,growx,aligny top");
 		
 		list = new JList();
 		frmMapix.getContentPane().add(list, "cell 1 3,grow");
@@ -96,9 +76,6 @@ public class MapixInterface extends ComponentAdapter{
 		slider = new JSlider();
 		frmMapix.getContentPane().add(slider, "cell 0 4,growx,aligny center");
 		
-		//We probably will not have this button
-		//btnMap = new JButton("Map!");
-		//frmMapix.getContentPane().add(btnMap, "cell 1 5,growx,aligny top");
 	}
 	
 	/**
@@ -150,6 +127,16 @@ public class MapixInterface extends ComponentAdapter{
 			newDim.width = 250;
 		
 		frmMapix.setSize(newDim);
+		
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		
+		if(e.getSource() == importButton)
+		{
+			int returnVal = fc.showOpenDialog(frmMapix);
+		}
 		
 	}
 
