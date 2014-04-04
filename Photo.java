@@ -2,7 +2,7 @@ package mapix;
 
 public class Photo {
 	
-	private String path, dateTime;
+	private String path, dateTime, name;
 	private double xGPS, yGPS;
 	private int timeValue; //seconds since epoch? Use for sorting
 	
@@ -10,9 +10,10 @@ public class Photo {
 	 * Constructor
 	 * @param path String containing path to photo
 	 */
-	public Photo(String path)
+	public Photo(String path, String name)
 	{
 		this.path = path; 
+		this.name = name;
 		extractMetadata();
 	}
 	
@@ -59,6 +60,15 @@ public class Photo {
 	public int getTimeValue()
 	{
 		return timeValue;
+	}
+	
+	/**
+	 * Accessor to return the filename
+	 * @return name
+	 */
+	public String getName()
+	{
+		return name;
 	}
 	
 	/** 
