@@ -12,7 +12,7 @@ public class Photo {
 	 */
 	public Photo(String path)
 	{
-		
+		this.path = path; 
 	}
 	
 	/**

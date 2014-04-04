@@ -93,19 +93,28 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	 * implement the array of photo objects as a global variable
 	 * @throws IOException 
 	 */
-	public void importPhotos(File f) throws IOException
+	public void importPhotos(File f) 
 	{
 		if(f.isDirectory())
 		{
 			//Extract individual files from directory. This might need to be recursive if we wish to support
 			//	Nested directories. 
 			File[] files = f.listFiles();
-			for(File imageFile : files)
-			{
-				photoList.add(new Photo(imageFile.getCanonicalPath())); // Create new photo object and add to list
-			}
 			
-			throw new IOException("Could not read file name");
+		    	for(File imageFile : files)
+		 	    {
+				    try {
+				    	// Create new photo object and add to list
+						photoList.add(new Photo(imageFile.getCanonicalPath()));
+					} catch (IOException e) {
+						System.out.println("General IO Exception: " + e.getMessage());
+					} 
+			    }
+			
+			for(Photo p : photoList)
+				System.out.println(p.getPath());
+			
+			//
 		}
 		
 		//This should grab each photo in the folder and:
@@ -170,12 +179,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 			if (returnVal == JFileChooser.APPROVE_OPTION) 
 			{
 	            File file = fc.getSelectedFile(); 
-	            //Java required a try/catch here
-	            try {
-					importPhotos(file);
-				} catch (IOException e1) {
-					System.out.println("General IO Exception: " + e1.getMessage());
-				}
+				importPhotos(file);
 			}
 		}
 		
