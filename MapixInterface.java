@@ -25,7 +25,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	private JFrame frmMapix; //Main frame
 	private JButton importButton; 
 	private JSlider slider;
-	private JList list;
+	private JList<Object> list;
 	private JFileChooser fc;
 	private ArrayList<Photo> photoList = new ArrayList<Photo>();
 
@@ -77,7 +77,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		frmMapix.getContentPane().add(panel, "cell 0 0,grow");
 		
 		//Will list files
-		list = new JList();
+		list = new JList<Object>();
 		frmMapix.getContentPane().add(list, "cell 1 3,grow");
 		
 		slider = new JSlider();
@@ -87,6 +87,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	
 	/**
 	 * Imports (recursively) all photos at the specified path
+	 * TODO: Sort Array by time
 	 * TODO: Parameter will need to be an array if we wish to implement multiple selection.
 	 * @param path		File Object returned by the File Chooser
 	 * @return void 	May change to array/arraylist of photo objects or potentially stay void and
@@ -109,19 +110,8 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 					} catch (IOException e) {
 						System.out.println("General IO Exception: " + e.getMessage());
 					} 
-			    }
-			
-			for(Photo p : photoList)
-				System.out.println(p.getPath());
-			
-			//
+			    }	
 		}
-		
-		//This should grab each photo in the folder and:
-		//1. Create a photo object, inserting the picture/path into the object
-		//2. Call extractMetadata to pull the GPS and Date/Time -OR- call the photo Object's extractMetadata
-		//		method. 
-		//3. Insert into array(list) utilizing some sorting algorithm to sort by date/time
 		
 	}
 	
