@@ -25,9 +25,10 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	private JFrame frmMapix; //Main frame
 	private JButton importButton; 
 	private JSlider slider;
-	private JList<Object> list;
+	private JList<?> list;
 	private JFileChooser fc;
 	private ArrayList<Photo> photoList = new ArrayList<Photo>();
+	private JScrollPane listScroller;
 
 	/**
 	 * Launch the application.
@@ -62,6 +63,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][][][224px,grow][]"));
 		frmMapix.addComponentListener(this); //This listens for resize
+		listScroller = new JScrollPane();
 		
 		//Create new File Chooser that allows selection of both files and directories
 		//TODO: Implement multiple selection support and file type filtering
@@ -77,10 +79,17 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		frmMapix.getContentPane().add(panel, "cell 0 0,grow");
 		
 		//Will list files
-		list = new JList<Object>();
-		frmMapix.getContentPane().add(list, "cell 1 3,grow");
+		frmMapix.getContentPane().add(listScroller, "cell 1 3,grow");
 		
+		//Could probably use setLabelTable to certain ticks (dates)
+		//Could also probably reset the number number of ticks/spacing after determining number of files.
 		slider = new JSlider();
+		slider.setValue(0);
+		slider.setMajorTickSpacing(10);
+		slider.setToolTipText("");
+		slider.setSnapToTicks(true);
+		slider.setMinorTickSpacing(5);
+		slider.setPaintTicks(true);
 		frmMapix.getContentPane().add(slider, "cell 0 4,growx,aligny center");
 		
 	}
@@ -94,7 +103,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	 * implement the array of photo objects as a global variable
 	 * @throws IOException 
 	 */
-	public void importPhotos(File f) 
+	private void importPhotos(File f) 
 	{
 		if(f.isDirectory())
 		{
@@ -120,7 +129,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	 * This function pulls in a map covering the area included in the obtained GPS coordinates
 	 * return and params may change as needed
 	 */
-	public void buildMap()
+	private void buildMap()
 	{
 		
 	}
@@ -129,8 +138,22 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	 * This function plots a photo(s) on the map based on where the timeline slider is.
 	 * return and params may change as needed 
 	 */
-	public void plotPhoto()
+	private void plotPhoto()
 	{
+		
+	}
+	
+	/**
+	 * This function builds the list of files imported. 
+	 */
+	private void buildList(Photo[] photos)
+	{
+		
+		list = new JList<Photo>(photos);
+		//list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		//list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+		listScroller.getViewport().setView(list);
+		
 		
 	}
 	
@@ -170,9 +193,11 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 			{
 	            File file = fc.getSelectedFile(); 
 				importPhotos(file);
+				Photo[] photosArr = new Photo[photoList.size()];
+				photosArr = photoList.toArray(photosArr);
+				buildList(photosArr);
 			}
 		}
 		
 	}
-
 }
