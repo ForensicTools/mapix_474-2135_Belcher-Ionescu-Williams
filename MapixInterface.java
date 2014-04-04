@@ -15,17 +15,19 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.filechooser.*;
+
+import java.util.ArrayList; 
 
 
 
 public class MapixInterface extends ComponentAdapter implements ActionListener{
 
-	private JFrame frmMapix;
-	private JButton importButton;
+	private JFrame frmMapix; //Main frame
+	private JButton importButton; 
 	private JSlider slider;
 	private JList list;
 	private JFileChooser fc;
+	private ArrayList<Photo> photoList = new ArrayList<Photo>();
 
 	/**
 	 * Launch the application.
@@ -59,7 +61,10 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		frmMapix.setBounds(100, 100, 525, 325);
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][][][224px,grow][]"));
-		frmMapix.addComponentListener(this);
+		frmMapix.addComponentListener(this); //This listens for resize
+		
+		//Create new File Chooser that allows selection of both files and directories
+		//TODO: Implement multiple selection support and file type filtering
 		fc = new JFileChooser();
 		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		
@@ -67,9 +72,11 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		importButton.addActionListener(this);
 		frmMapix.getContentPane().add(importButton, "cell 1 1,growx,aligny bottom");
 		
+		//Will hold Map
 		JPanel panel = new JPanel();
 		frmMapix.getContentPane().add(panel, "cell 0 0,grow");
 		
+		//Will list files
 		list = new JList();
 		frmMapix.getContentPane().add(list, "cell 1 3,grow");
 		
@@ -80,12 +87,27 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	
 	/**
 	 * Imports (recursively) all photos at the specified path
-	 * @param path		Full path to folder containing photos
+	 * TODO: Parameter will need to be an array if we wish to implement multiple selection.
+	 * @param path		File Object returned by the File Chooser
 	 * @return void 	May change to array/arraylist of photo objects or potentially stay void and
 	 * implement the array of photo objects as a global variable
+	 * @throws IOException 
 	 */
-	public void importPhotos(String path)
+	public void importPhotos(File f) throws IOException
 	{
+		if(f.isDirectory())
+		{
+			//Extract individual files from directory. This might need to be recursive if we wish to support
+			//	Nested directories. 
+			File[] files = f.listFiles();
+			for(File imageFile : files)
+			{
+				photoList.add(new Photo(imageFile.getCanonicalPath())); // Create new photo object and add to list
+			}
+			
+			throw new IOException("Could not read file name");
+		}
+		
 		//This should grab each photo in the folder and:
 		//1. Create a photo object, inserting the picture/path into the object
 		//2. Call extractMetadata to pull the GPS and Date/Time -OR- call the photo Object's extractMetadata
@@ -120,6 +142,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	@Override
 	public void componentResized(ComponentEvent e) {
 		Dimension newDim = frmMapix.getSize();
+		
 		if(newDim.height < 220)
 			newDim.height = 220;
 		
@@ -131,11 +154,29 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	}
 
 	@Override
+	/**
+	 * Action performed on import button
+	 * @param e Action Event (mouse click)
+	 * @return void
+	 */
 	public void actionPerformed(ActionEvent e) {
 		
+		//Source of event was the import button
 		if(e.getSource() == importButton)
 		{
-			int returnVal = fc.showOpenDialog(frmMapix);
+			int returnVal = fc.showOpenDialog(frmMapix); //open File Chooser window
+			
+			//A file was chosen
+			if (returnVal == JFileChooser.APPROVE_OPTION) 
+			{
+	            File file = fc.getSelectedFile(); 
+	            //Java required a try/catch here
+	            try {
+					importPhotos(file);
+				} catch (IOException e1) {
+					System.out.println("General IO Exception: " + e1.getMessage());
+				}
+			}
 		}
 		
 	}
