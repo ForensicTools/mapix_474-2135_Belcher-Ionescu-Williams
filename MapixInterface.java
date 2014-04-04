@@ -9,16 +9,11 @@
 package mapix;
 
 import net.miginfocom.swing.MigLayout;
-
 import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
-
 import javax.swing.*;
-
 import java.util.ArrayList; 
-
-
 
 public class MapixInterface extends ComponentAdapter implements ActionListener{
 
@@ -115,7 +110,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		 	    {
 				    try {
 				    	// Create new photo object and add to list
-						photoList.add(new Photo(imageFile.getCanonicalPath()));
+						photoList.add(new Photo(imageFile.getCanonicalPath(), imageFile.getName()));
 					} catch (IOException e) {
 						System.out.println("General IO Exception: " + e.getMessage());
 					} 
@@ -152,7 +147,9 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		list = new JList<Photo>(photos);
 		//list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		//list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+		list.setCellRenderer(new MyCellRenderer());
 		listScroller.getViewport().setView(list);
+		
 		
 		
 	}
