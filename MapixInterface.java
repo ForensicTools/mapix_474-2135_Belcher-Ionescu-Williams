@@ -8,36 +8,26 @@
 
 package mapix;
 
-import java.awt.EventQueue;
+import net.miginfocom.swing.MigLayout;
 
-import javax.swing.JFrame;
-import javax.swing.JSlider;
-
-import javax.swing.JTextField;
-import javax.swing.JButton;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ComponentEvent;
-
-import java.awt.Dimension;
+import java.io.*;
+import java.awt.*;
 import java.awt.event.*;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 
-import net.miginfocom.swing.MigLayout;
-import javax.swing.JList;
-
+import java.util.ArrayList; 
 
 
-public class MapixInterface extends ComponentAdapter{
 
-	private JFrame frmMapix;
-	private JTextField txtPathtophotos;
-	private JButton btnInportPhotos;
-	private JButton btnMap;
+public class MapixInterface extends ComponentAdapter implements ActionListener{
+
+	private JFrame frmMapix; //Main frame
+	private JButton importButton; 
 	private JSlider slider;
-	private JList list;
+	private JList<Object> list;
+	private JFileChooser fc;
+	private ArrayList<Photo> photoList = new ArrayList<Photo>();
 
 	/**
 	 * Launch the application.
@@ -71,49 +61,57 @@ public class MapixInterface extends ComponentAdapter{
 		frmMapix.setBounds(100, 100, 525, 325);
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][][][224px,grow][]"));
-		frmMapix.addComponentListener(this);
+		frmMapix.addComponentListener(this); //This listens for resize
 		
-		txtPathtophotos = new JTextField();
-		txtPathtophotos.setText("Path/to/photos");
-		frmMapix.getContentPane().add(txtPathtophotos, "cell 1 1,growx,aligny bottom");
-		txtPathtophotos.setColumns(10);
+		//Create new File Chooser that allows selection of both files and directories
+		//TODO: Implement multiple selection support and file type filtering
+		fc = new JFileChooser();
+		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		
+		importButton = new JButton("Import");
+		importButton.addActionListener(this);
+		frmMapix.getContentPane().add(importButton, "cell 1 1,growx,aligny bottom");
+		
+		//Will hold Map
 		JPanel panel = new JPanel();
 		frmMapix.getContentPane().add(panel, "cell 0 0,grow");
 		
-		btnInportPhotos = new JButton("Import");
-		btnInportPhotos.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				txtPathtophotos.setText("It worked!");
-			}
-		});
-		frmMapix.getContentPane().add(btnInportPhotos, "cell 1 2,growx,aligny top");
-		
-		list = new JList();
+		//Will list files
+		list = new JList<Object>();
 		frmMapix.getContentPane().add(list, "cell 1 3,grow");
 		
 		slider = new JSlider();
 		frmMapix.getContentPane().add(slider, "cell 0 4,growx,aligny center");
 		
-		//We probably will not have this button
-		//btnMap = new JButton("Map!");
-		//frmMapix.getContentPane().add(btnMap, "cell 1 5,growx,aligny top");
 	}
 	
 	/**
 	 * Imports (recursively) all photos at the specified path
-	 * @param path		Full path to folder containing photos
+	 * TODO: Sort Array by time
+	 * TODO: Parameter will need to be an array if we wish to implement multiple selection.
+	 * @param path		File Object returned by the File Chooser
 	 * @return void 	May change to array/arraylist of photo objects or potentially stay void and
 	 * implement the array of photo objects as a global variable
+	 * @throws IOException 
 	 */
-	public void importPhotos(String path)
+	public void importPhotos(File f) 
 	{
-		//This should grab each photo in the folder and:
-		//1. Create a photo object, inserting the picture/path into the object
-		//2. Call extractMetadata to pull the GPS and Date/Time -OR- call the photo Object's extractMetadata
-		//		method. 
-		//3. Insert into array(list) utilizing some sorting algorithm to sort by date/time
+		if(f.isDirectory())
+		{
+			//Extract individual files from directory. This might need to be recursive if we wish to support
+			//	Nested directories. 
+			File[] files = f.listFiles();
+			
+		    	for(File imageFile : files)
+		 	    {
+				    try {
+				    	// Create new photo object and add to list
+						photoList.add(new Photo(imageFile.getCanonicalPath()));
+					} catch (IOException e) {
+						System.out.println("General IO Exception: " + e.getMessage());
+					} 
+			    }	
+		}
 		
 	}
 	
@@ -143,6 +141,7 @@ public class MapixInterface extends ComponentAdapter{
 	@Override
 	public void componentResized(ComponentEvent e) {
 		Dimension newDim = frmMapix.getSize();
+		
 		if(newDim.height < 220)
 			newDim.height = 220;
 		
@@ -150,6 +149,29 @@ public class MapixInterface extends ComponentAdapter{
 			newDim.width = 250;
 		
 		frmMapix.setSize(newDim);
+		
+	}
+
+	@Override
+	/**
+	 * Action performed on import button
+	 * @param e Action Event (mouse click)
+	 * @return void
+	 */
+	public void actionPerformed(ActionEvent e) {
+		
+		//Source of event was the import button
+		if(e.getSource() == importButton)
+		{
+			int returnVal = fc.showOpenDialog(frmMapix); //open File Chooser window
+			
+			//A file was chosen
+			if (returnVal == JFileChooser.APPROVE_OPTION) 
+			{
+	            File file = fc.getSelectedFile(); 
+				importPhotos(file);
+			}
+		}
 		
 	}
 

@@ -12,7 +12,8 @@ public class Photo {
 	 */
 	public Photo(String path)
 	{
-		
+		this.path = path; 
+		extractMetadata();
 	}
 	
 	/**
@@ -68,7 +69,4 @@ public class Photo {
 	{
 		
 	}
-	
-	
-
 }
