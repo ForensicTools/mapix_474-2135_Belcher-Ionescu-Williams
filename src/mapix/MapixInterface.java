@@ -1,13 +1,19 @@
 /**
- * <Insert Mapix Description Here>
+ * Mapix
+ * -----
+ * Visualization tool to scan image files for time, GPS, camera data and plot on interactive map as thumbnails with timeline scrubbing.
+ * 
+ * https://github.com/vladionescu/mapix
+ * 
  * @author Alex Belcher
- * @author Insert your name
- * @author ""
+ * @author Vlad Ionescu
+ * @author Jon Williams
  * @version 0.1
  */
 
 package mapix;
 
+import mapix.Photo;
 import net.miginfocom.swing.MigLayout;
 import java.io.*;
 import java.awt.*;
