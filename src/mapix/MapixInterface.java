@@ -172,7 +172,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		
 	}
 
-	@Override
+	
 	/**
 	 * Action performed on import button
 	 * @param e Action Event (mouse click)
