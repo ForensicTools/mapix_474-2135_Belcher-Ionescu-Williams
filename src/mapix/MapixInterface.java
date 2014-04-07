@@ -13,6 +13,7 @@
 
 package mapix;
 
+import mapix.Photo;
 import net.miginfocom.swing.MigLayout;
 import java.io.*;
 import java.awt.*;
