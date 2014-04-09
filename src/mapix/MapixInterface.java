@@ -19,11 +19,15 @@ import net.miginfocom.swing.MigLayout;
 import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 
 import javax.swing.*;
+import javax.imageio.*;
 
 import java.util.ArrayList; 
 import java.util.Collections;
+
+
 
 public class MapixInterface extends ComponentAdapter implements ActionListener{
 
@@ -34,6 +38,9 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	private JFileChooser fc;
 	private ArrayList<Photo> photoList = new ArrayList<Photo>();
 	private JScrollPane listScroller;
+	private Popup popup;
+	private boolean popupExists=false;
+	private String popupImg = "";
 
 	/**
 	 * Launch the application.
@@ -153,7 +160,8 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	}
 	
 	/**
-	 * This function builds the list of files imported. 
+	 * This function builds the list of files imported. It also includes the actionlistener to display
+	 * clicked images from the list. 
 	 */
 	private void buildList(Photo[] photos)
 	{
@@ -162,9 +170,49 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		//list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		//list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		list.setCellRenderer(new MyCellRenderer());
+		
+		MouseListener mouseListener = new MouseAdapter() {
+			public void mouseClicked(MouseEvent e){
+				
+				String path = ((Photo)list.getSelectedValue()).getPath();
+				if(popupImg.equals(path) && popupExists)
+				{
+					popup.hide();
+					popupExists = false;
+					return;
+				}
+				if(popupExists) 
+					popup.hide();
+				
+				
+				popupExists=true;
+				popupImg = ((Photo)list.getSelectedValue()).getPath();
+				
+				BufferedImage resizeImage = null, img = null;
+				
+				try {
+					img = ImageIO.read(new File(((Photo)list.getSelectedValue()).getPath()));
+					int type = img.getType() == 0? BufferedImage.TYPE_INT_ARGB : img.getType();
+					resizeImage = new BufferedImage(500, 500, type);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
+				Graphics2D g = resizeImage.createGraphics();
+				g.drawImage(img, 0, 0, 500, 500, null);
+				g.dispose();
+				ImageIcon icon = new ImageIcon(resizeImage);
+				JLabel jl = new JLabel(icon);
+				PopupFactory factory = PopupFactory.getSharedInstance();
+				popup = factory.getPopup(null, jl, 0,0);
+				popup.show();
+			}
+		};
+		
+		list.addMouseListener(mouseListener);
 		listScroller.getViewport().setView(list);
 	}
-	
+    
 	/**
 	 * This function inserts a new photo object into the Photo arraylist in sorted order based on time
 	 * @param p Photo obect to be inserted
