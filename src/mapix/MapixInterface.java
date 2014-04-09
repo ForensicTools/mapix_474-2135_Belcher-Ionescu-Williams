@@ -90,10 +90,10 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		//Could also probably reset the number number of ticks/spacing after determining number of files.
 		slider = new JSlider();
 		slider.setValue(0);
-		slider.setMajorTickSpacing(10);
+		slider.setMajorTickSpacing(2);
 		slider.setToolTipText("");
 		slider.setSnapToTicks(true);
-		slider.setMinorTickSpacing(5);
+		slider.setMinorTickSpacing(1);
 		slider.setPaintTicks(true);
 		frmMapix.getContentPane().add(slider, "cell 0 4,growx,aligny center");
 		
@@ -121,11 +121,15 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 				    try {
 				    	// Create new photo object and add to list
 						Photo p = new Photo(imageFile.getCanonicalPath(), imageFile.getName());
+						
+						photoList.add(p); //Remove line - here for testing
 					} catch (IOException e) {
 						System.out.println("General IO Exception: " + e.getMessage());
 					} 
-			    }	
+			    }
 		}
+		
+		slider.setMaximum(photoList.size());
 		
 	}
 	
