@@ -15,11 +15,15 @@ package mapix;
 
 import mapix.Photo;
 import net.miginfocom.swing.MigLayout;
+
 import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
+
 import java.util.ArrayList; 
+import java.util.Collections;
 
 public class MapixInterface extends ComponentAdapter implements ActionListener{
 
@@ -116,7 +120,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		 	    {
 				    try {
 				    	// Create new photo object and add to list
-						photoList.add(new Photo(imageFile.getCanonicalPath(), imageFile.getName()));
+						Photo p = new Photo(imageFile.getCanonicalPath(), imageFile.getName());
 					} catch (IOException e) {
 						System.out.println("General IO Exception: " + e.getMessage());
 					} 
@@ -155,9 +159,22 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		//list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		list.setCellRenderer(new MyCellRenderer());
 		listScroller.getViewport().setView(list);
-		
-		
-		
+	}
+	
+	/**
+	 * This function inserts a new photo object into the Photo arraylist in sorted order based on time
+	 * @param p Photo obect to be inserted
+	 */
+	private void insert(Photo p)
+	{
+		for(int i = 0; i < photoList.size(); i++)
+		{
+			if(photoList.get(i).getTimeValue() < p.getTimeValue())
+				continue;
+			photoList.add(i, p);
+			return;
+		}
+		photoList.add(p);
 	}
 	
 	/**
