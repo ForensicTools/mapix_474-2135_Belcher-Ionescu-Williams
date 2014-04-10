@@ -171,25 +171,30 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		//list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		list.setCellRenderer(new MyCellRenderer());
 		
+		//The following code listens for a click on an item in the JList. When clicked, the referenced
+		//image is displayed. If the image is already displayed, it is hidden. 
 		MouseListener mouseListener = new MouseAdapter() {
 			public void mouseClicked(MouseEvent e){
 				
 				String path = ((Photo)list.getSelectedValue()).getPath();
+				//Is this image already displayed?
 				if(popupImg.equals(path) && popupExists)
 				{
 					popup.hide();
 					popupExists = false;
 					return;
 				}
+				//Is another image already displayed?
 				if(popupExists) 
 					popup.hide();
 				
-				
+				//set current popup values
 				popupExists=true;
 				popupImg = ((Photo)list.getSelectedValue()).getPath();
 				
 				BufferedImage resizeImage = null, img = null;
 				
+				//try to read the image and create a resized image (Images were displaying much to largely) 
 				try {
 					img = ImageIO.read(new File(((Photo)list.getSelectedValue()).getPath()));
 					int type = img.getType() == 0? BufferedImage.TYPE_INT_ARGB : img.getType();
@@ -198,9 +203,12 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 					e1.printStackTrace();
 				}
 				
+				//Paint the resized image
 				Graphics2D g = resizeImage.createGraphics();
 				g.drawImage(img, 0, 0, 500, 500, null);
 				g.dispose();
+				
+				//Create a JLabel to display in a popup
 				ImageIcon icon = new ImageIcon(resizeImage);
 				JLabel jl = new JLabel(icon);
 				PopupFactory factory = PopupFactory.getSharedInstance();
