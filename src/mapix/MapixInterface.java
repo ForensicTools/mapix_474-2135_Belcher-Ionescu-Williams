@@ -136,8 +136,18 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 				// Put the WebView inside our JavaFX panel
 				jfx.setScene(new Scene(view));
 				
-				// load Google Maps
-				webkit.load(toURL("https://maps.google.com"));
+				// load static HTML file, initialized with empty map and JS scripts
+				try {
+					webkit.load(localURL("mapinit.html"));
+				} catch (FileNotFoundException e) {
+					// if the file doesn't exist, our program can't function.
+					// print the error and die - EXIT CODE 1
+					System.err.println(e.getMessage());
+					System.exit(1);
+				}
+				
+				// WebView#getEngine().executeScript(...);
+				// do this ^ to execute JS against the view
 			}
 		});
 	}
@@ -304,5 +314,18 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		} catch(MalformedURLException e) {
 			return null;
 		}
+	}
+	
+	private String localURL(String str) throws FileNotFoundException {
+		// find the resource in the local path, delimited by /
+		URL local = this.getClass().getResource(str);
+		
+		// does the file not exist? throw an exception
+		if(null == local) {
+			throw new FileNotFoundException("The local resource "+str+" was not found.");
+		}
+		
+		// return a valid URL to load by the browser
+		return local.toExternalForm();
 	}
 }
