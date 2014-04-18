@@ -71,7 +71,11 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	private void initialize() {
 		frmMapix = new JFrame();
 		frmMapix.setTitle("Mapix");
-		frmMapix.setBounds(100, 100, 525, 325);
+		
+        // Set the size at a minimum of 525 x 325
+        frmMapix.setPreferredSize(new Dimension(525,325));
+        frmMapix.setMinimumSize(frmMapix.getPreferredSize());
+		
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][][][224px,grow][]"));
 		frmMapix.addComponentListener(this); //This listens for resize
@@ -236,25 +240,6 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		}
 		photoList.add(p);
 	}
-	
-	/**
-	 * This method overrides the componentResized method in the componentAdpter class.
-	 * This is being done in order to ensure the window is not resized below a minimum threshold size
-	 */
-	@Override
-	public void componentResized(ComponentEvent e) {
-		Dimension newDim = frmMapix.getSize();
-		
-		if(newDim.height < 220)
-			newDim.height = 220;
-		
-		if(newDim.width < 250)
-			newDim.width = 250;
-		
-		frmMapix.setSize(newDim);
-		
-	}
-
 	
 	/**
 	 * Action performed on import button
