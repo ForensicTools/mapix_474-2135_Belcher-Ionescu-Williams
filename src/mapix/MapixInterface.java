@@ -308,14 +308,6 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		
 	}
 	
-	private static String toURL(String str) {
-		try {
-			return new URL(str).toExternalForm();
-		} catch(MalformedURLException e) {
-			return null;
-		}
-	}
-	
 	private String localURL(String str) throws FileNotFoundException {
 		// find the resource in the local path, delimited by /
 		URL local = this.getClass().getResource(str);
