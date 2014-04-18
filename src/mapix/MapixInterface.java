@@ -17,9 +17,17 @@ import mapix.Photo;
 import net.miginfocom.swing.MigLayout;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Scene;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 
 import javax.swing.*;
 import javax.imageio.*;
@@ -32,6 +40,8 @@ import java.util.Collections;
 public class MapixInterface extends ComponentAdapter implements ActionListener{
 
 	private JFrame frmMapix; //Main frame
+	private JPanel mapPanel = new JPanel(new BorderLayout()); // plain JPanel containing JavaFX Panel
+	private JFXPanel jfx = new JFXPanel(); // JavaFX Panel containing map
 	private JButton importButton; 
 	private JSlider slider;
 	private JList<?> list;
@@ -41,6 +51,8 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	private Popup popup;
 	private boolean popupExists=false;
 	private String popupImg = "";
+	
+	private WebEngine webkit; // WebKit engine, for rendering map
 
 	/**
 	 * Launch the application.
@@ -63,6 +75,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	 */
 	public MapixInterface() {
 		initialize();
+		initializeMap();
 	}
 
 	/**
@@ -90,10 +103,6 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		importButton.addActionListener(this);
 		frmMapix.getContentPane().add(importButton, "cell 1 1,growx,aligny bottom");
 		
-		//Will hold Map
-		JPanel panel = new JPanel();
-		frmMapix.getContentPane().add(panel, "cell 0 0,grow");
-		
 		//Will list files
 		frmMapix.getContentPane().add(listScroller, "cell 1 3,grow");
 		
@@ -108,6 +117,29 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		slider.setPaintTicks(true);
 		frmMapix.getContentPane().add(slider, "cell 0 4,growx,aligny center");
 		
+	}
+	
+	private void initializeMap() {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				// Attach the JavaFX panel, which contains the WebEngine, to our JPanel
+				mapPanel.add(jfx, BorderLayout.CENTER);
+				
+				// Add the map JPanel to the interface
+				frmMapix.add(mapPanel, "cell 0 0,grow,span 1 4");
+				
+				// Start the WebEngine, vroom vroom
+				WebView view = new WebView();
+				webkit = view.getEngine();
+				
+				// Put the WebView inside our JavaFX panel
+				jfx.setScene(new Scene(view));
+				
+				// load Google Maps
+				webkit.load(toURL("https://maps.google.com"));
+			}
+		});
 	}
 	
 	/**
@@ -264,5 +296,13 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 			}
 		}
 		
+	}
+	
+	private static String toURL(String str) {
+		try {
+			return new URL(str).toExternalForm();
+		} catch(MalformedURLException e) {
+			return null;
+		}
 	}
 }
