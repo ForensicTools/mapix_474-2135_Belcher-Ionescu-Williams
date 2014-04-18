@@ -138,7 +138,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 				
 				// load static HTML file, initialized with empty map and JS scripts
 				try {
-					webkit.load(localURL("mapinit.html"));
+					webkit.load(localURL("/res/mapinit.html"));
 				} catch (FileNotFoundException e) {
 					// if the file doesn't exist, our program can't function.
 					// print the error and die - EXIT CODE 1
