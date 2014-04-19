@@ -47,27 +47,24 @@ Map.makeMarker = function() {
 }
 
 /**
- * Generate an InfoWindow, which is sort of an extended Marker.
- *
- * It doesn't do many tricks though, so this is only temporary/for demonstration.
- * This will be replaced with an InfoBox.
+ * Generate an InfoBox, which is like a Marker holding an image thumbnail.
  */
 Map.makeInfo = function() {
-	// the content that goes in the InfoWindow
+	// the content that goes in the InfoBox
 	var infocontent = '\
     	<div style="width:64px;height:64px;background:#e3e3e3;padding:4px;">\
     		<img src="http://placekitten.com/64/64" />\
     	</div>\
     ';
     
-    // setup the InfoWindow
-    var info = new google.maps.InfoWindow({
+    // setup the InfoBox
+    var info = new InfoBox({
     	disableAutoPan: true,
     	hasCloseButton: false,
     	position: new google.maps.LatLng(43.084710, -77.679780),
     	content: infocontent
     });
     
-    // create the InfoWindow
+    // create the InfoBox
     info.open(Map.map);
 }
