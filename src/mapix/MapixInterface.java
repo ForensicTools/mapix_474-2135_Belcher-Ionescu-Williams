@@ -314,6 +314,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 				photosArr = photoList.toArray(photosArr);
 				buildList(photosArr);
 				slider.setMaximum(numMappable);
+				
 			}
 		}
 		

@@ -23,7 +23,7 @@ public class Photo {
 	private String path, dateTime, name;
 	private double xGPS = 200, yGPS = 200; //initialized to values that are out of range
 	private Date date = null;
-	boolean isMappable = true;
+	private boolean isMappable = true;
 	//private int timeValue; //seconds since epoch? Use for sorting
 	
 	/**
@@ -108,24 +108,42 @@ public class Photo {
 	{
 		try{
 			String path = getPath();
+			
 			File jpgInput = new File (path);
 			
 			//Extract date and time
 			Metadata dateAndTime = ImageMetadataReader.readMetadata(jpgInput);
-			ExifSubIFDDirectory dateAndTimeDirectory = dateAndTime.getDirectory(ExifSubIFDDirectory.class);
-			if(dateAndTimeDirectory != null)
+			if(dateAndTime != null)
 			{
-				date = dateAndTimeDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-				System.out.println(name);
-				System.out.println("Photo Date and Time: "+ date);
-				dateTime=date.toString();	
+				ExifSubIFDDirectory dateAndTimeDirectory = dateAndTime.getDirectory(ExifSubIFDDirectory.class);
+				//System.out.println(name);
+				if(dateAndTimeDirectory != null)
+				{
+				
+					date = dateAndTimeDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+				
+					System.out.println("Photo Date and Time: "+ date);
+					dateTime=date.toString();	
+				}
+				else 
+					isMappable = false;
 			}
-			else
+			else 
 				isMappable = false;
-					
+			
 			//Extract GeoLocation
 			Metadata geoLocation = ImageMetadataReader.readMetadata(jpgInput);
+			if(geoLocation == null)
+			{
+				isMappable = false;
+				return;
+			}
 			GpsDirectory gpsDirectory = geoLocation.getDirectory(GpsDirectory.class);
+			if(gpsDirectory == null)
+			{
+				isMappable = false;
+				return;
+			}
 			GeoLocation coordinates = gpsDirectory.getGeoLocation();
 			if(coordinates == null)
 			{
@@ -145,6 +163,7 @@ public class Photo {
 		
 		catch(Exception a){
 			a.printStackTrace();
+			
 		}
 		
 	}
