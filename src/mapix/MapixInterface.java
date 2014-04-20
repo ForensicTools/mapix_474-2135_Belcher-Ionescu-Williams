@@ -51,6 +51,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	private Popup popup;
 	private boolean popupExists=false;
 	private String popupImg = "";
+	private int numMappable = 0; //keep track of the number of mappable photos in the list. 
 	
 	private WebEngine webkit; // WebKit engine, for rendering map
 
@@ -88,6 +89,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
         // Set the size at a minimum of 525 x 325
         frmMapix.setPreferredSize(new Dimension(525,325));
         frmMapix.setMinimumSize(frmMapix.getPreferredSize());
+        frmMapix.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][][][224px,grow][]"));
@@ -272,6 +274,15 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	 */
 	private void insert(Photo p)
 	{
+		
+		//if a photo is missing date or GPS info, put it at the end of the list
+		if(!p.isMappable())
+		{
+			photoList.add(p);
+			return;
+		}
+		
+		numMappable++;
 		for(int i = 0; i < photoList.size(); i++)
 		{
 			if(photoList.get(i).getDate().before(p.getDate()))
@@ -302,6 +313,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 				Photo[] photosArr = new Photo[photoList.size()];
 				photosArr = photoList.toArray(photosArr);
 				buildList(photosArr);
+				slider.setMaximum(numMappable);
 			}
 		}
 		

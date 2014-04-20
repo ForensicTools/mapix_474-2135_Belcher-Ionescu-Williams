@@ -22,7 +22,8 @@ public class Photo {
 	
 	private String path, dateTime, name;
 	private double xGPS = 200, yGPS = 200; //initialized to values that are out of range
-	private Date date;
+	private Date date = null;
+	boolean isMappable = true;
 	//private int timeValue; //seconds since epoch? Use for sorting
 	
 	/**
@@ -90,6 +91,15 @@ public class Photo {
 		return date;
 	}
 	
+	/**
+	 * Accessor to return whether or not a photo is mapable (contains both data and GPS data)
+	 * @return isMappable
+	 */
+	public boolean isMappable()
+	{
+		return isMappable;
+	}
+	
 	/** 
 	 * Extracts metadata (GPS and Time/Date) from photo
 	 * 
@@ -110,14 +120,19 @@ public class Photo {
 				System.out.println("Photo Date and Time: "+ date);
 				dateTime=date.toString();	
 			}
+			else
+				isMappable = false;
 					
 			//Extract GeoLocation
 			Metadata geoLocation = ImageMetadataReader.readMetadata(jpgInput);
 			GpsDirectory gpsDirectory = geoLocation.getDirectory(GpsDirectory.class);
 			GeoLocation coordinates = gpsDirectory.getGeoLocation();
 			if(coordinates == null)
+			{
+				isMappable = false;
 				return;
-			
+			}
+				
 			//Getting the Latitude
 			System.out.println("GPS lat"+coordinates.getLatitude());
 			yGPS = coordinates.getLatitude();
