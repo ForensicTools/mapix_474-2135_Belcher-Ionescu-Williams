@@ -121,7 +121,6 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	
 	private void initializeMap() {
 		Platform.runLater(new Runnable() {
-			@Override
 			public void run() {
 				// Attach the JavaFX panel, which contains the WebEngine, to our JPanel
 				mapPanel.add(jfx, BorderLayout.CENTER);
@@ -175,7 +174,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 				    	// Create new photo object and add to list
 						Photo p = new Photo(imageFile.getCanonicalPath(), imageFile.getName());
 						
-						photoList.add(p); //Remove line - here for testing
+						insert(p);
 					} catch (IOException e) {
 						System.out.println("General IO Exception: " + e.getMessage());
 					} 
@@ -275,7 +274,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	{
 		for(int i = 0; i < photoList.size(); i++)
 		{
-			if(photoList.get(i).getTimeValue() < p.getTimeValue())
+			if(photoList.get(i).getDate().before(p.getDate()))
 				continue;
 			photoList.add(i, p);
 			return;
