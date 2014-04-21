@@ -17,9 +17,17 @@ import mapix.Photo;
 import net.miginfocom.swing.MigLayout;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Scene;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 
 import javax.swing.*;
 import javax.imageio.*;
@@ -32,6 +40,8 @@ import java.util.Collections;
 public class MapixInterface extends ComponentAdapter implements ActionListener{
 
 	private JFrame frmMapix; //Main frame
+	private JPanel mapPanel = new JPanel(new BorderLayout()); // plain JPanel containing JavaFX Panel
+	private JFXPanel jfx = new JFXPanel(); // JavaFX Panel containing map
 	private JButton importButton; 
 	private JSlider slider;
 	private JList<?> list;
@@ -41,6 +51,9 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	private Popup popup;
 	private boolean popupExists=false;
 	private String popupImg = "";
+	private int numMappable = 0; //keep track of the number of mappable photos in the list. 
+	
+	private WebEngine webkit; // WebKit engine, for rendering map
 
 	/**
 	 * Launch the application.
@@ -63,6 +76,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	 */
 	public MapixInterface() {
 		initialize();
+		initializeMap();
 	}
 
 	/**
@@ -71,7 +85,12 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	private void initialize() {
 		frmMapix = new JFrame();
 		frmMapix.setTitle("Mapix");
-		frmMapix.setBounds(100, 100, 525, 325);
+		
+        // Set the size at a minimum of 525 x 325
+        frmMapix.setPreferredSize(new Dimension(525,325));
+        frmMapix.setMinimumSize(frmMapix.getPreferredSize());
+        frmMapix.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][][][224px,grow][]"));
 		frmMapix.addComponentListener(this); //This listens for resize
@@ -85,10 +104,6 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		importButton = new JButton("Import");
 		importButton.addActionListener(this);
 		frmMapix.getContentPane().add(importButton, "cell 1 1,growx,aligny bottom");
-		
-		//Will hold Map
-		JPanel panel = new JPanel();
-		frmMapix.getContentPane().add(panel, "cell 0 0,grow");
 		
 		//Will list files
 		frmMapix.getContentPane().add(listScroller, "cell 1 3,grow");
@@ -104,6 +119,38 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		slider.setPaintTicks(true);
 		frmMapix.getContentPane().add(slider, "cell 0 4,growx,aligny center");
 		
+	}
+	
+	private void initializeMap() {
+		Platform.runLater(new Runnable() {
+			public void run() {
+				// Attach the JavaFX panel, which contains the WebEngine, to our JPanel
+				mapPanel.add(jfx, BorderLayout.CENTER);
+				
+				// Add the map JPanel to the interface
+				frmMapix.add(mapPanel, "cell 0 0,grow,span 1 4");
+				
+				// Start the WebEngine, vroom vroom
+				WebView view = new WebView();
+				webkit = view.getEngine();
+				
+				// Put the WebView inside our JavaFX panel
+				jfx.setScene(new Scene(view));
+				
+				// load static HTML file, initialized with empty map and JS scripts
+				try {
+					webkit.load(localURL("/res/mapinit.html"));
+				} catch (FileNotFoundException e) {
+					// if the file doesn't exist, our program can't function.
+					// print the error and die - EXIT CODE 1
+					System.err.println(e.getMessage());
+					System.exit(1);
+				}
+				
+				// WebView#getEngine().executeScript(...);
+				// do this ^ to execute JS against the view
+			}
+		});
 	}
 	
 	/**
@@ -129,7 +176,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 				    	// Create new photo object and add to list
 						Photo p = new Photo(imageFile.getCanonicalPath(), imageFile.getName());
 						
-						photoList.add(p); //Remove line - here for testing
+						insert(p);
 					} catch (IOException e) {
 						System.out.println("General IO Exception: " + e.getMessage());
 					} 
@@ -227,34 +274,24 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	 */
 	private void insert(Photo p)
 	{
+		
+		//if a photo is missing date or GPS info, put it at the end of the list
+		if(!p.isMappable())
+		{
+			photoList.add(p);
+			return;
+		}
+		
+		numMappable++;
 		for(int i = 0; i < photoList.size(); i++)
 		{
-			if(photoList.get(i).getTimeValue() < p.getTimeValue())
+			if(photoList.get(i).getDate().before(p.getDate()))
 				continue;
 			photoList.add(i, p);
 			return;
 		}
 		photoList.add(p);
 	}
-	
-	/**
-	 * This method overrides the componentResized method in the componentAdpter class.
-	 * This is being done in order to ensure the window is not resized below a minimum threshold size
-	 */
-	@Override
-	public void componentResized(ComponentEvent e) {
-		Dimension newDim = frmMapix.getSize();
-		
-		if(newDim.height < 220)
-			newDim.height = 220;
-		
-		if(newDim.width < 250)
-			newDim.width = 250;
-		
-		frmMapix.setSize(newDim);
-		
-	}
-
 	
 	/**
 	 * Action performed on import button
@@ -276,8 +313,23 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 				Photo[] photosArr = new Photo[photoList.size()];
 				photosArr = photoList.toArray(photosArr);
 				buildList(photosArr);
+				slider.setMaximum(numMappable);
+				
 			}
 		}
 		
+	}
+	
+	private String localURL(String str) throws FileNotFoundException {
+		// find the resource in the local path, delimited by /
+		URL local = this.getClass().getResource(str);
+		
+		// does the file not exist? throw an exception
+		if(null == local) {
+			throw new FileNotFoundException("The local resource "+str+" was not found.");
+		}
+		
+		// return a valid URL to load by the browser
+		return local.toExternalForm();
 	}
 }
