@@ -1,6 +1,13 @@
 $( document ).ready(function() {
 	Map.init();
-	Map.makeInfo();
+	
+	var photo = new Object();
+	photo.id = 'a';
+	photo.path = 'http://placekitten.com/64/64';
+	photo.lat = 43.084710;
+	photo.lng = -77.67978;
+	
+	Map.makeInfo(photo);
 });
 
 /**
@@ -32,12 +39,24 @@ Map.init = function() {
 
 /**
  * Generate an InfoBox, which is like a Marker holding an image thumbnail.
+ *
+ * @param Object	The photo objects should have the following properties: id, path, lat, lng.
  */
-Map.makeInfo = function() {
+Map.makeInfo = function(photo) {
+	// check that we are getting all the expected arguments/properties
+	if(
+		typeof(photo) === undefined ||
+		typeof(photo.id) === undefined ||
+		typeof(photo.path) === undefined ||
+		typeof(photo.lat) === undefined ||
+		typeof(photo.lng) === undefined
+	)
+		return;
+
 	// the content that goes in the InfoBox
 	var infocontent = '\
-    	<div class="imgContainer" id="picID">\
-    		<img src="http://placekitten.com/64/64" />\
+    	<div class="imgContainer" id="'+photo.id+'">\
+    		<img src="'+photo.path+'" />\
     	</div>\
     	<div class="pointer"></div>\
     ';
@@ -48,7 +67,7 @@ Map.makeInfo = function() {
     	disableAutoPan: true,
     	closeBoxURL: '',
     	enableEventPropagation: true,
-    	position: new google.maps.LatLng(43.084710, -77.679780),
+    	position: new google.maps.LatLng(photo.lat, photo.lng),
     	content: infocontent
     });
     
