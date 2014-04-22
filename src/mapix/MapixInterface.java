@@ -195,11 +195,9 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	}
 	
 	/**
-	 * This function plots a photo(s) on the map based on where the timeline slider is.
-	 * return and params may change as needed 
+	 * This function plots photos on the map based on their metadata.
 	 */
-	private void plotPhoto()
-	{
+	private void plotPhotos() {
 		
 	}
 	
