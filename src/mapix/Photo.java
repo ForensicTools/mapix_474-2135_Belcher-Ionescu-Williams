@@ -20,6 +20,9 @@ import java.util.Iterator;
 
 public class Photo {
 	
+	private static Integer maxid = 0; // the highest numbered ID of any Photo. Incremented each time a new ID is assigned.
+	
+	private Integer id; // uniquely identifying number for this Photo
 	private String path, dateTime, name;
 	private double xGPS = 200, yGPS = 200; //initialized to values that are out of range
 	private Date date = null;
@@ -32,9 +35,22 @@ public class Photo {
 	 */
 	public Photo(String path, String name)
 	{
+		// assign the ID of this Photo to be 1 greater than the previous highest ID
+		this.id = this.maxid + 1;
+		// then increment the max ID so the next Photo doesn't conflict
+		Photo.maxid += 1;
+		
 		this.path = path; 
 		this.name = name;
 		extractMetadata();
+	}
+	
+	/**
+	 * Accessor to return the unique ID
+	 * @return id
+	 */
+	public Integer getID() {
+		return id;
 	}
 	
 	/**
