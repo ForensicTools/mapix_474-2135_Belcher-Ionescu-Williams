@@ -17,7 +17,6 @@ import mapix.Photo;
 import net.miginfocom.swing.MigLayout;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.awt.*;
 import java.awt.event.*;
@@ -32,8 +31,9 @@ import javafx.scene.web.WebView;
 import javax.swing.*;
 import javax.imageio.*;
 
+import org.json.simple.JSONObject;
+
 import java.util.ArrayList; 
-import java.util.Collections;
 
 
 
@@ -53,7 +53,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	private String popupImg = "";
 	private int numMappable = 0; //keep track of the number of mappable photos in the list. 
 	
-	private WebEngine webkit; // WebKit engine, for rendering map
+	private WebEngine webkit; // WebKit engine, for rendering map. we have to be in an FX thread to interact with this
 
 	/**
 	 * Launch the application.
@@ -89,7 +89,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
         // Set the size at a minimum of 525 x 325
         frmMapix.setPreferredSize(new Dimension(525,325));
         frmMapix.setMinimumSize(frmMapix.getPreferredSize());
-        frmMapix.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        frmMapix.setExtendedState(JFrame.MAXIMIZED_BOTH); // opens the app in fullscreen every time
 		
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][][][224px,grow][]"));
@@ -182,23 +182,35 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		
 		slider.setMaximum(photoList.size());
 		
-	}
-	
-	
-	/** 
-	 * This function pulls in a map covering the area included in the obtained GPS coordinates
-	 * return and params may change as needed
-	 */
-	private void buildMap()
-	{
-		
+		plotPhotos(photoList);
 	}
 	
 	/**
-	 * This function plots photos on the map based on their metadata.
+	 * This function plots photos on the map based on their metadata (GPS coordinates).
+	 * 
+	 * @param photos
 	 */
-	private void plotPhotos() {
-		
+	@SuppressWarnings({ "unchecked" })
+	private void plotPhotos(ArrayList<Photo> photos) {
+		// map every photo in the ArrayList submitted
+		for(int i = 0; i < photos.size(); i++) {
+			// create a JSON object we can reliably pass to JS
+			final JSONObject photo = new JSONObject();
+			
+			// which will hold the info JS expects in order to plot the Photo on the map
+			photo.put( "id",	photos.get(i).getID()	);
+			photo.put( "path",	photos.get(i).getPath()	);
+			photo.put( "lat",	photos.get(i).getyGPS()	);
+			photo.put( "lng",	photos.get(i).getxGPS()	);
+			
+			// we have to be in a JavaFX thread to interact with the WebEngine object
+			Platform.runLater(new Runnable() {
+				public void run() {
+					// pass the Photo as JSON to a JS function so it can be mapped
+					webkit.executeScript("Map.plotPhoto("+photo+")");
+				}
+			});
+		}
 	}
 	
 	/**
