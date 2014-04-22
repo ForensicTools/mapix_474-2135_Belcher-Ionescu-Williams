@@ -146,9 +146,6 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 					System.err.println(e.getMessage());
 					System.exit(1);
 				}
-				
-				// WebView#getEngine().executeScript(...);
-				// do this ^ to execute JS against the view
 			}
 		});
 	}
@@ -320,6 +317,14 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		
 	}
 	
+	/**
+	 * Takes a / delimited file path and tries to get a loadable URL to it, if
+	 *   it is available in the local resource path (classpath).
+	 * 
+	 * @param str
+	 * @return String URL
+	 * @throws FileNotFoundException
+	 */
 	private String localURL(String str) throws FileNotFoundException {
 		// find the resource in the local path, delimited by /
 		URL local = this.getClass().getResource(str);
