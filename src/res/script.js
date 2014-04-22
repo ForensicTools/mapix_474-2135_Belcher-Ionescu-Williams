@@ -1,13 +1,5 @@
 $( document ).ready(function() {
 	Map.init();
-	
-	var photo = new Object();
-	photo.id = 'a';
-	photo.path = 'http://placekitten.com/64/64';
-	photo.lat = 43.084710;
-	photo.lng = -77.67978;
-	
-	Map.makeInfo(photo);
 });
 
 /**
@@ -38,11 +30,12 @@ Map.init = function() {
 }
 
 /**
+ * Plot the given photo on the map.
  * Generate an InfoBox, which is like a Marker holding an image thumbnail.
  *
  * @param Object	The photo objects should have the following properties: id, path, lat, lng.
  */
-Map.makeInfo = function(photo) {
+Map.plotPhoto = function(photo) {
 	// check that we are getting all the expected arguments/properties
 	if(
 		typeof(photo) === undefined ||
@@ -56,7 +49,7 @@ Map.makeInfo = function(photo) {
 	// the content that goes in the InfoBox
 	var infocontent = '\
     	<div class="imgContainer" id="'+photo.id+'">\
-    		<img src="'+photo.path+'" />\
+    		<img src="'+photo.path+'" width="64" height="64" />\
     	</div>\
     	<div class="pointer"></div>\
     ';
