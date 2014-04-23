@@ -29,6 +29,8 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.imageio.*;
 
 import org.json.simple.JSONObject;
@@ -51,7 +53,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	private Popup popup;
 	private boolean popupExists=false;
 	private String popupImg = "";
-	private int numMappable = 0; //keep track of the number of mappable photos in the list. 
+	private int numMappable = 0, lastSliderVal = -1; //keep track of the number of mappable photos in the list. 
 	
 	private WebEngine webkit; // WebKit engine, for rendering map. we have to be in an FX thread to interact with this
 
@@ -117,6 +119,13 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		slider.setSnapToTicks(true);
 		slider.setMinorTickSpacing(1);
 		slider.setPaintTicks(true);
+		slider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				if(slider.getValue() != lastSliderVal)
+					//System.out.println(slider.getValue()); //This value goes to vlad to map
+				lastSliderVal = slider.getValue();
+			}
+		});
 		frmMapix.getContentPane().add(slider, "cell 0 4,growx,aligny center");
 		
 	}
