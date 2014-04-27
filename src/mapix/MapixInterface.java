@@ -42,13 +42,9 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
-
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList; 
-
-
 
 public class MapixInterface implements ActionListener{
 
@@ -67,7 +63,8 @@ public class MapixInterface implements ActionListener{
 	private int numMappable = 0, lastSliderVal = -1; //keep track of the number of mappable photos in the list. 
 	
 	private WebEngine webkit; // WebKit engine, for rendering map. we have to be in an FX thread to interact with this
-
+	private WebView webview;
+	
 	/**
 	 * Launch the application.
 	 */
