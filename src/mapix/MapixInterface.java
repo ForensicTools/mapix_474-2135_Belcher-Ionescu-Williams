@@ -42,13 +42,9 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
-
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList; 
-
-
 
 public class MapixInterface implements ActionListener{
 
@@ -67,7 +63,8 @@ public class MapixInterface implements ActionListener{
 	private int numMappable = 0, lastSliderVal = -1; //keep track of the number of mappable photos in the list. 
 	
 	private WebEngine webkit; // WebKit engine, for rendering map. we have to be in an FX thread to interact with this
-
+	private WebView webview;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -150,11 +147,11 @@ public class MapixInterface implements ActionListener{
 				frmMapix.add(mapPanel, "cell 0 0,grow,span 1 4");
 				
 				// Start the WebEngine, vroom vroom
-				WebView view = new WebView();
-				webkit = view.getEngine();
+				webview = new WebView();
+				webkit = webview.getEngine();
 				
 				// Put the WebView inside our JavaFX panel
-				jfx.setScene(new Scene(view));
+				jfx.setScene(new Scene(webview));
 				
 				// load static HTML file, initialized with empty map and JS scripts
 				try {
@@ -213,11 +210,11 @@ public class MapixInterface implements ActionListener{
 	 */
 	@SuppressWarnings({ "unchecked" })
 	private void plotPhotos(ArrayList<Photo> photos) {
+		// create a JSON object we can reliably pass to JS
+		final JSONObject photo = new JSONObject();
+		
 		// map every photo in the ArrayList submitted
 		for(int i = 0; i < photos.size(); i++) {
-			// create a JSON object we can reliably pass to JS
-			final JSONObject photo = new JSONObject();
-			
 			// which will hold the info JS expects in order to plot the Photo on the map
 			photo.put( "id",	photos.get(i).getID()	);
 			photo.put( "path",	photos.get(i).getPath()	);
