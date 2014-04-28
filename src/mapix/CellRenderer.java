@@ -1,18 +1,24 @@
 package mapix;
-import java.awt.*;
 
+
+import java.awt.Component;
 
 import javax.swing.*;
 
- class MyCellRenderer extends JLabel implements ListCellRenderer {
-     //final static ImageIcon longIcon = new ImageIcon("long.gif");
+ class MyCellRenderer extends JLabel implements ListCellRenderer<Object> {
+     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1;
+
+	//final static ImageIcon longIcon = new ImageIcon("long.gif");
      //final static ImageIcon shortIcon = new ImageIcon("short.gif");
 
      // This is the only method defined by ListCellRenderer.
      // We just reconfigure the JLabel each time we're called.
 
      public Component getListCellRendererComponent(
-       JList list,              // the list
+       JList<?> list,              // the list
        Object value,            // value to display
        int index,               // cell index
        boolean isSelected,      // is the cell selected
@@ -35,6 +41,7 @@ import javax.swing.*;
          setEnabled(list.isEnabled());
          setFont(list.getFont());
          setOpaque(true);
+         
          return this;
      }
  }

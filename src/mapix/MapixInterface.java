@@ -16,10 +16,19 @@ package mapix;
 import mapix.Photo;
 import net.miginfocom.swing.MigLayout;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 
 import javafx.application.Platform;
@@ -28,10 +37,12 @@ import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.imageio.*;
+
+
 
 import org.json.simple.JSONObject;
 
@@ -39,7 +50,7 @@ import java.util.ArrayList;
 
 
 
-public class MapixInterface extends ComponentAdapter implements ActionListener{
+public class MapixInterface implements ActionListener{
 
 	private JFrame frmMapix; //Main frame
 	private JPanel mapPanel = new JPanel(new BorderLayout()); // plain JPanel containing JavaFX Panel
@@ -95,7 +106,6 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][][][224px,grow][]"));
-		frmMapix.addComponentListener(this); //This listens for resize
 		listScroller = new JScrollPane();
 		
 		//Create new File Chooser that allows selection of both files and directories
@@ -123,7 +133,7 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 			public void stateChanged(ChangeEvent e) {
 				if(slider.getValue() != lastSliderVal)
 					//System.out.println(slider.getValue()); //This value goes to vlad to map
-				lastSliderVal = slider.getValue();
+					lastSliderVal = slider.getValue();
 			}
 		});
 		frmMapix.getContentPane().add(slider, "cell 0 4,growx,aligny center");
@@ -183,10 +193,12 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 						Photo p = new Photo(imageFile.getCanonicalPath(), imageFile.getName());
 						
 						insert(p);
+						imageFile = null; //?
 					} catch (IOException e) {
 						System.out.println("General IO Exception: " + e.getMessage());
 					} 
 			    }
+		    	files = null;
 		}
 		
 		slider.setMaximum(photoList.size());
@@ -239,17 +251,23 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		MouseListener mouseListener = new MouseAdapter() {
 			public void mouseClicked(MouseEvent e){
 				
+				
 				String path = ((Photo)list.getSelectedValue()).getPath();
 				//Is this image already displayed?
 				if(popupImg.equals(path) && popupExists)
 				{
 					popup.hide();
 					popupExists = false;
+					popup = null;
 					return;
 				}
 				//Is another image already displayed?
 				if(popupExists) 
+				{
 					popup.hide();
+					popup = null;
+				}
+					
 				
 				//set current popup values
 				popupExists=true;
@@ -330,6 +348,8 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 				photosArr = photoList.toArray(photosArr);
 				buildList(photosArr);
 				slider.setMaximum(numMappable);
+				file = null;
+				photosArr = null;
 				
 			}
 		}
