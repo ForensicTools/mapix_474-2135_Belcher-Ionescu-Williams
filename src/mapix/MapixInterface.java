@@ -213,11 +213,11 @@ public class MapixInterface implements ActionListener{
 	 */
 	@SuppressWarnings({ "unchecked" })
 	private void plotPhotos(ArrayList<Photo> photos) {
+		// create a JSON object we can reliably pass to JS
+		final JSONObject photo = new JSONObject();
+		
 		// map every photo in the ArrayList submitted
 		for(int i = 0; i < photos.size(); i++) {
-			// create a JSON object we can reliably pass to JS
-			final JSONObject photo = new JSONObject();
-			
 			// which will hold the info JS expects in order to plot the Photo on the map
 			photo.put( "id",	photos.get(i).getID()	);
 			photo.put( "path",	photos.get(i).getPath()	);
