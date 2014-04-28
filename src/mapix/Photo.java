@@ -5,18 +5,16 @@ import javax.imageio.ImageReader;
 import javax.imageio.metadata.*;
 import javax.imageio.stream.*;*/
 
-import org.w3c.dom.*;
+
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.lang.GeoLocation;
-import com.drew.metadata.*; 
+import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
-
-import java.io.*;
-import java.text.DateFormat;
+import java.io.File;
 import java.util.Date;
-import java.util.Iterator;
+
 
 public class Photo {
 	
@@ -27,7 +25,6 @@ public class Photo {
 	private double xGPS = 200, yGPS = 200; //initialized to values that are out of range
 	private Date date = null;
 	private boolean isMappable = true;
-	//private int timeValue; //seconds since epoch? Use for sorting
 	
 	/**
 	 * Constructor
@@ -123,8 +120,6 @@ public class Photo {
 	private void extractMetadata()
 	{
 		try{
-			String path = getPath();
-			
 			File jpgInput = new File (path);
 			
 			//Extract date and time
@@ -132,14 +127,12 @@ public class Photo {
 			if(dateAndTime != null)
 			{
 				ExifSubIFDDirectory dateAndTimeDirectory = dateAndTime.getDirectory(ExifSubIFDDirectory.class);
-				//System.out.println(name);
 				if(dateAndTimeDirectory != null)
 				{
 				
 					date = dateAndTimeDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-				
-					System.out.println("Photo Date and Time: "+ date);
-					dateTime=date.toString();	
+					dateTime=date.toString();
+					dateAndTimeDirectory = null; //cleanup
 				}
 				else 
 					isMappable = false;
@@ -152,29 +145,44 @@ public class Photo {
 			if(geoLocation == null)
 			{
 				isMappable = false;
+				jpgInput = null;
+				dateAndTime = null;
 				return;
 			}
 			GpsDirectory gpsDirectory = geoLocation.getDirectory(GpsDirectory.class);
 			if(gpsDirectory == null)
 			{
 				isMappable = false;
+				jpgInput = null;
+				dateAndTime = null;
+				geoLocation = null;
 				return;
 			}
 			GeoLocation coordinates = gpsDirectory.getGeoLocation();
 			if(coordinates == null)
 			{
 				isMappable = false;
+				jpgInput = null;
+				dateAndTime = null;
+				geoLocation = null;
+				gpsDirectory = null;
 				return;
 			}
 				
 			//Getting the Latitude
-			System.out.println("GPS lat"+coordinates.getLatitude());
 			yGPS = coordinates.getLatitude();
 			
 			//Getting the Longitude
 			xGPS=coordinates.getLongitude();
 			
-			//System.out.println("GPS Coordinates: "+ coordinates);
+			
+			//cleanup
+			jpgInput = null;
+			dateAndTime = null;
+			geoLocation = null;
+			gpsDirectory = null;
+			coordinates = null;
+			
 		}
 		
 		catch(Exception a){
@@ -183,4 +191,5 @@ public class Photo {
 		}
 		
 	}
+	
 }
