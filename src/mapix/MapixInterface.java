@@ -147,11 +147,11 @@ public class MapixInterface implements ActionListener{
 				frmMapix.add(mapPanel, "cell 0 0,grow,span 1 4");
 				
 				// Start the WebEngine, vroom vroom
-				WebView view = new WebView();
-				webkit = view.getEngine();
+				webview = new WebView();
+				webkit = webview.getEngine();
 				
 				// Put the WebView inside our JavaFX panel
-				jfx.setScene(new Scene(view));
+				jfx.setScene(new Scene(webview));
 				
 				// load static HTML file, initialized with empty map and JS scripts
 				try {
