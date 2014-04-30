@@ -67,3 +67,11 @@ Map.plotPhoto = function(photo) {
     // create the InfoBox
     info.open(Map.map);
 }
+
+
+Map.highlightPhoto = function(id) {
+	// check that we are getting an ID passed in
+	if(typeof(id) === undefined || id.length === 0 || parseInt(id, 10) === NaN) return false;
+	
+	document.getElementById(parseInt(id, 10)).innerHTML = id;
+}
