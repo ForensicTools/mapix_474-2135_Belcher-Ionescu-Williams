@@ -129,7 +129,11 @@ public class MapixInterface implements ActionListener{
 		slider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				if(slider.getValue() != lastSliderVal)
-					webkit.executeScript("Map.highlightPhoto("+photoList.get(slider.getValue()).getID()+")");
+					Platform.runLater(new Runnable() {
+						public void run() {
+							webkit.executeScript("Map.highlightPhoto("+photoList.get(slider.getValue()).getID()+")");
+						}
+					});
 					//System.out.println(slider.getValue()); //This value goes to vlad to map
 					lastSliderVal = slider.getValue();
 			}
