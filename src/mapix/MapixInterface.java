@@ -134,7 +134,7 @@ public class MapixInterface implements ActionListener{
 							webkit.executeScript("Map.highlightPhoto("+photoList.get(slider.getValue()).getID()+")");
 						}
 					});
-					//System.out.println(slider.getValue()); //This value goes to vlad to map
+					System.out.println(slider.getValue()+" | and the photoList array is this many big: "+photoList.size()); //This value goes to vlad to map
 					lastSliderVal = slider.getValue();
 			}
 		});
@@ -203,7 +203,13 @@ public class MapixInterface implements ActionListener{
 		    	files = null;
 		}
 		
-		slider.setMaximum(photoList.size());
+		if(photoList.size() > 1) {
+			// if we have more than one photo, enable the user to scroll through them with the slider
+			slider.setMaximum(photoList.size()-1);
+		} else {
+			// otherwise (with only 1 photo), don't bother enabling the slider as it can't be used anyway
+			slider.setEnabled(false);
+		}
 		
 		plotPhotos(photoList);
 	}
