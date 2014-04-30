@@ -129,6 +129,7 @@ public class MapixInterface implements ActionListener{
 		slider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				if(slider.getValue() != lastSliderVal)
+					webkit.executeScript("Map.highlightPhoto("+photoList.get(slider.getValue()).getID()+")");
 					//System.out.println(slider.getValue()); //This value goes to vlad to map
 					lastSliderVal = slider.getValue();
 			}
@@ -224,6 +225,7 @@ public class MapixInterface implements ActionListener{
 			// we have to be in a JavaFX thread to interact with the WebEngine object
 			Platform.runLater(new Runnable() {
 				public void run() {
+					
 					// pass the Photo as JSON to a JS function so it can be mapped
 					webkit.executeScript("Map.plotPhoto("+photo+")");
 				}
