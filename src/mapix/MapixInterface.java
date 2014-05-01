@@ -121,21 +121,23 @@ public class MapixInterface implements ActionListener{
 		//Could also probably reset the number number of ticks/spacing after determining number of files.
 		slider = new JSlider();
 		slider.setValue(0);
-		slider.setMajorTickSpacing(2);
+		slider.setMajorTickSpacing(1);
 		slider.setToolTipText("");
 		slider.setSnapToTicks(true);
-		slider.setMinorTickSpacing(1);
 		slider.setPaintTicks(true);
+		slider.setEnabled(false);
+		slider.setMaximum(1);
 		slider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				if(slider.getValue() != lastSliderVal)
+				if(slider.getValue() != lastSliderVal) {
 					Platform.runLater(new Runnable() {
 						public void run() {
 							webkit.executeScript("Map.highlightPhoto("+photoList.get(slider.getValue()).getID()+")");
 						}
 					});
-					System.out.println(slider.getValue()+" | and the photoList array is this many big: "+photoList.size()); //This value goes to vlad to map
+					//System.out.println(slider.getValue()+" | and the photoList array is this many big: "+photoList.size());
 					lastSliderVal = slider.getValue();
+				}
 			}
 		});
 		frmMapix.getContentPane().add(slider, "cell 0 4,growx,aligny center");
@@ -206,6 +208,7 @@ public class MapixInterface implements ActionListener{
 		if(photoList.size() > 1) {
 			// if we have more than one photo, enable the user to scroll through them with the slider
 			slider.setMaximum(photoList.size()-1);
+			slider.setEnabled(true);
 		} else {
 			// otherwise (with only 1 photo), don't bother enabling the slider as it can't be used anyway
 			slider.setEnabled(false);

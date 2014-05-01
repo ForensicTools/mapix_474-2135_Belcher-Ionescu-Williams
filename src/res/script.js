@@ -57,7 +57,7 @@ Map.plotPhoto = function(photo) {
     // setup the InfoBox
     var info = new InfoBox({
     	alignBottom: true,
-    	disableAutoPan: true,
+    	disableAutoPan: false,
     	closeBoxURL: '',
     	enableEventPropagation: true,
     	position: new google.maps.LatLng(photo.lat, photo.lng),
@@ -68,10 +68,18 @@ Map.plotPhoto = function(photo) {
     info.open(Map.map);
 }
 
-
+/**
+ * Highlight the photo whose ID corresponds to the one passed in.
+ *
+ * @param number	The ID of the photo which will be highlighted
+ */
 Map.highlightPhoto = function(id) {
 	// check that we are getting an ID passed in
 	if(typeof(id) === undefined || id.length === 0 || parseInt(id, 10) === NaN) return false;
 	
-	document.getElementById(parseInt(id, 10)+"").innerHTML = id;
+	// make all the photos 50% transparent to de-emphasize any highlighted ones
+	$('.imgContainer').css("opacity", "0.5");
+	
+	// make the current photo opaque, to make it evident
+	$('#'+parseInt(id, 10).toString()).css("opacity", "1");
 }
