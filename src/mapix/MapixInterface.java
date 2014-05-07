@@ -61,6 +61,7 @@ public class MapixInterface implements ActionListener{
 	private boolean popupExists=false;
 	private String popupImg = "";
 	private int numMappable = 0, lastSliderVal = -1; //keep track of the number of mappable photos in the list. 
+	private JTextField dispDate = new JTextField();
 	
 	private WebEngine webkit; // WebKit engine, for rendering map. we have to be in an FX thread to interact with this
 	private WebView webview;
@@ -102,7 +103,7 @@ public class MapixInterface implements ActionListener{
         frmMapix.setExtendedState(JFrame.MAXIMIZED_BOTH); // opens the app in fullscreen every time
 		
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][][][224px,grow][]"));
+		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:200px:200px,grow]", "[][][][224px,grow][]"));
 		listScroller = new JScrollPane();
 		
 		//Create new File Chooser that allows selection of both files and directories
@@ -132,6 +133,7 @@ public class MapixInterface implements ActionListener{
 				if(slider.getValue() != lastSliderVal) {
 					Platform.runLater(new Runnable() {
 						public void run() {
+							dispDate.setText(photoList.get(slider.getValue()).getDateTime());
 							webkit.executeScript("Map.highlightPhoto("+photoList.get(slider.getValue()).getID()+")");
 						}
 					});
@@ -141,6 +143,9 @@ public class MapixInterface implements ActionListener{
 			}
 		});
 		frmMapix.getContentPane().add(slider, "cell 0 4,growx,aligny center");
+		
+		dispDate.setEditable(false);
+		frmMapix.getContentPane().add(dispDate, "cell 1 4,growx,aligny center");
 		
 	}
 	
