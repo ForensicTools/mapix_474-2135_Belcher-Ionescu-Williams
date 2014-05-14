@@ -1,6 +1,5 @@
 $( document ).ready(function() {
 	Map.init();
-	Map.makeInfo();
 });
 
 /**
@@ -31,43 +30,56 @@ Map.init = function() {
 }
 
 /**
- * Generate a map Marker.
+ * Plot the given photo on the map.
+ * Generate an InfoBox, which is like a Marker holding an image thumbnail.
  *
- * Pretty boring, just for demonstration. Will most likely be removed at release.
+ * @param Object	The photo objects should have the following properties: id, path, lat, lng.
  */
-Map.makeMarker = function() {
-	// setup the Marker
-	var marker = new google.maps.Marker({
-        position: new google.maps.LatLng(43.084710, -77.679780),
-        title: "Hello world"
-    });
-    
-    // create the Marker
-    marker.setMap(Map.map);
-}
+Map.plotPhoto = function(photo) {
+	// check that we are getting all the expected arguments/properties
+	if(
+		typeof(photo) === undefined ||
+		typeof(photo.id) === undefined ||
+		typeof(photo.path) === undefined ||
+		typeof(photo.lat) === undefined ||
+		typeof(photo.lng) === undefined
+	)
+		return;
 
-/**
- * Generate an InfoWindow, which is sort of an extended Marker.
- *
- * It doesn't do many tricks though, so this is only temporary/for demonstration.
- * This will be replaced with an InfoBox.
- */
-Map.makeInfo = function() {
-	// the content that goes in the InfoWindow
+	// the content that goes in the InfoBox
 	var infocontent = '\
-    	<div style="width:64px;height:64px;background:#e3e3e3;padding:4px;">\
-    		<img src="http://placekitten.com/64/64" />\
+    	<div class="imgContainer" id="'+photo.id+'">\
+    		<img src="'+photo.path+'" width="64" height="64" />\
     	</div>\
+    	<div class="pointer"></div>\
     ';
     
-    // setup the InfoWindow
-    var info = new google.maps.InfoWindow({
-    	disableAutoPan: true,
-    	hasCloseButton: false,
-    	position: new google.maps.LatLng(43.084710, -77.679780),
+    // setup the InfoBox
+    var info = new InfoBox({
+    	alignBottom: true,
+    	disableAutoPan: false,
+    	closeBoxURL: '',
+    	enableEventPropagation: true,
+    	position: new google.maps.LatLng(photo.lat, photo.lng),
     	content: infocontent
     });
     
-    // create the InfoWindow
+    // create the InfoBox
     info.open(Map.map);
+}
+
+/**
+ * Highlight the photo whose ID corresponds to the one passed in.
+ *
+ * @param number	The ID of the photo which will be highlighted
+ */
+Map.highlightPhoto = function(id) {
+	// check that we are getting an ID passed in
+	if(typeof(id) === undefined || id.length === 0 || parseInt(id, 10) === NaN) return false;
+	
+	// make all the photos 50% transparent to de-emphasize any highlighted ones
+	$('.imgContainer').css("opacity", "0.5");
+	
+	// make the current photo opaque, to make it evident
+	$('#'+parseInt(id, 10).toString()).css("opacity", "1");
 }

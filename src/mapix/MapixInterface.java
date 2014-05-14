@@ -16,11 +16,19 @@ package mapix;
 import mapix.Photo;
 import net.miginfocom.swing.MigLayout;
 
-import java.io.*;
-import java.net.MalformedURLException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 
 import javafx.application.Platform;
@@ -29,15 +37,16 @@ import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.imageio.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import org.json.simple.JSONObject;
 
 import java.util.ArrayList; 
-import java.util.Collections;
 
-
-
-public class MapixInterface extends ComponentAdapter implements ActionListener{
+public class MapixInterface implements ActionListener{
 
 	private JFrame frmMapix; //Main frame
 	private JPanel mapPanel = new JPanel(new BorderLayout()); // plain JPanel containing JavaFX Panel
@@ -51,10 +60,12 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 	private Popup popup;
 	private boolean popupExists=false;
 	private String popupImg = "";
-	private int numMappable = 0; //keep track of the number of mappable photos in the list. 
+	private int numMappable = 0, lastSliderVal = -1; //keep track of the number of mappable photos in the list. 
+	private JTextField dispDate = new JTextField();
 	
-	private WebEngine webkit; // WebKit engine, for rendering map
-
+	private WebEngine webkit; // WebKit engine, for rendering map. we have to be in an FX thread to interact with this
+	private WebView webview;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -89,11 +100,10 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
         // Set the size at a minimum of 525 x 325
         frmMapix.setPreferredSize(new Dimension(525,325));
         frmMapix.setMinimumSize(frmMapix.getPreferredSize());
-        frmMapix.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        frmMapix.setExtendedState(JFrame.MAXIMIZED_BOTH); // opens the app in fullscreen every time
 		
 		frmMapix.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:114px:100px,grow]", "[][][][224px,grow][]"));
-		frmMapix.addComponentListener(this); //This listens for resize
+		frmMapix.getContentPane().setLayout(new MigLayout("", "[401px,grow][:200px:200px,grow]", "[][][][224px,grow][]"));
 		listScroller = new JScrollPane();
 		
 		//Create new File Chooser that allows selection of both files and directories
@@ -112,12 +122,30 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		//Could also probably reset the number number of ticks/spacing after determining number of files.
 		slider = new JSlider();
 		slider.setValue(0);
-		slider.setMajorTickSpacing(2);
+		slider.setMajorTickSpacing(1);
 		slider.setToolTipText("");
 		slider.setSnapToTicks(true);
-		slider.setMinorTickSpacing(1);
 		slider.setPaintTicks(true);
+		slider.setEnabled(false);
+		slider.setMaximum(1);
+		slider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				if(slider.getValue() != lastSliderVal) {
+					Platform.runLater(new Runnable() {
+						public void run() {
+							dispDate.setText(photoList.get(slider.getValue()).getDateTime());
+							webkit.executeScript("Map.highlightPhoto("+photoList.get(slider.getValue()).getID()+")");
+						}
+					});
+					//System.out.println(slider.getValue()+" | and the photoList array is this many big: "+photoList.size());
+					lastSliderVal = slider.getValue();
+				}
+			}
+		});
 		frmMapix.getContentPane().add(slider, "cell 0 4,growx,aligny center");
+		
+		dispDate.setEditable(false);
+		frmMapix.getContentPane().add(dispDate, "cell 1 4,growx,aligny center");
 		
 	}
 	
@@ -131,11 +159,11 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 				frmMapix.add(mapPanel, "cell 0 0,grow,span 1 4");
 				
 				// Start the WebEngine, vroom vroom
-				WebView view = new WebView();
-				webkit = view.getEngine();
+				webview = new WebView();
+				webkit = webview.getEngine();
 				
 				// Put the WebView inside our JavaFX panel
-				jfx.setScene(new Scene(view));
+				jfx.setScene(new Scene(webview));
 				
 				// load static HTML file, initialized with empty map and JS scripts
 				try {
@@ -146,9 +174,6 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 					System.err.println(e.getMessage());
 					System.exit(1);
 				}
-				
-				// WebView#getEngine().executeScript(...);
-				// do this ^ to execute JS against the view
 			}
 		});
 	}
@@ -177,33 +202,53 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 						Photo p = new Photo(imageFile.getCanonicalPath(), imageFile.getName());
 						
 						insert(p);
+						imageFile = null; //?
 					} catch (IOException e) {
 						System.out.println("General IO Exception: " + e.getMessage());
 					} 
 			    }
+		    	files = null;
 		}
 		
-		slider.setMaximum(photoList.size());
+		if(photoList.size() > 1) {
+			// if we have more than one photo, enable the user to scroll through them with the slider
+			slider.setMaximum(photoList.size()-1);
+			slider.setEnabled(true);
+		} else {
+			// otherwise (with only 1 photo), don't bother enabling the slider as it can't be used anyway
+			slider.setEnabled(false);
+		}
 		
-	}
-	
-	
-	/** 
-	 * This function pulls in a map covering the area included in the obtained GPS coordinates
-	 * return and params may change as needed
-	 */
-	private void buildMap()
-	{
-		
+		plotPhotos(photoList);
 	}
 	
 	/**
-	 * This function plots a photo(s) on the map based on where the timeline slider is.
-	 * return and params may change as needed 
+	 * This function plots photos on the map based on their metadata (GPS coordinates).
+	 * 
+	 * @param photos
 	 */
-	private void plotPhoto()
-	{
+	@SuppressWarnings({ "unchecked" })
+	private void plotPhotos(ArrayList<Photo> photos) {
+		// create a JSON object we can reliably pass to JS
+		final JSONObject photo = new JSONObject();
 		
+		// map every photo in the ArrayList submitted
+		for(int i = 0; i < photos.size(); i++) {
+			// which will hold the info JS expects in order to plot the Photo on the map
+			photo.put( "id",	photos.get(i).getID()	);
+			photo.put( "path",	photos.get(i).getPath()	);
+			photo.put( "lat",	photos.get(i).getyGPS()	);
+			photo.put( "lng",	photos.get(i).getxGPS()	);
+			
+			// we have to be in a JavaFX thread to interact with the WebEngine object
+			Platform.runLater(new Runnable() {
+				public void run() {
+					
+					// pass the Photo as JSON to a JS function so it can be mapped
+					webkit.executeScript("Map.plotPhoto("+photo+")");
+				}
+			});
+		}
 	}
 	
 	/**
@@ -223,17 +268,23 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 		MouseListener mouseListener = new MouseAdapter() {
 			public void mouseClicked(MouseEvent e){
 				
+				
 				String path = ((Photo)list.getSelectedValue()).getPath();
 				//Is this image already displayed?
 				if(popupImg.equals(path) && popupExists)
 				{
 					popup.hide();
 					popupExists = false;
+					popup = null;
 					return;
 				}
 				//Is another image already displayed?
 				if(popupExists) 
+				{
 					popup.hide();
+					popup = null;
+				}
+					
 				
 				//set current popup values
 				popupExists=true;
@@ -314,12 +365,22 @@ public class MapixInterface extends ComponentAdapter implements ActionListener{
 				photosArr = photoList.toArray(photosArr);
 				buildList(photosArr);
 				slider.setMaximum(numMappable);
+				file = null;
+				photosArr = null;
 				
 			}
 		}
 		
 	}
 	
+	/**
+	 * Takes a / delimited file path and tries to get a loadable URL to it, if
+	 *   it is available in the local resource path (classpath).
+	 * 
+	 * @param str
+	 * @return String URL
+	 * @throws FileNotFoundException
+	 */
 	private String localURL(String str) throws FileNotFoundException {
 		// find the resource in the local path, delimited by /
 		URL local = this.getClass().getResource(str);
